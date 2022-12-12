@@ -25,24 +25,9 @@ jobs:
           echo ARCHITECTURE=${{ steps.flutter-action.outputs.ARCHITECTURE }}
       - run: flutter pub get
       - run: flutter build apk --debug
-      - run: echo "VERSION=$(cat local.properties | cut -d '=' -f 2)" >> $GITHUB_ENV
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+      - run: mkdir temp && cp ./build/app/outputs/apk/debug/app-debug.apk temp/
+      - name: Prepare app repo
+        uses: addnab/docker-run-action@v3
         with:
-          tag_name: v${{ env.VERSION }}
-          release_name: Release v${{ env.VERSION }}
-          draft: false
-          prerelease: false
-      - name: Upload Release Asset
-        id: upload-release-asset 
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./build/app/outputs/apk/debug/app-debug.apk
-          asset_name: Navigation.apk
-          asset_content_type: application/apk
+          image: am271/fdroid:latest
+          options: -v ${{ env.PWD }}/temp:/app/repo
