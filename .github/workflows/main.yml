@@ -31,3 +31,4 @@ jobs:
         with:
           image: am271/fdroid:latest
           options: -v ${{ env.PWD }}/temp:/app/repo
+          run: echo "hello"
